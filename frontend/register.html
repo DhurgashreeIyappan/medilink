@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Register - MediLink</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+  <style>
+    .card {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 20px;
+      padding: 30px;
+      width: 100%;
+      height: 550px;
+      max-width: 600px;
+      color: #004d73;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#">MediLink</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Home</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="login-container">
+    <div class="card">
+      <h3 class="text-center mb-4">Register for MediLink</h3>
+      <form id="register-form">
+        <div class="mb-3">
+          <label for="fullname" class="form-label">Full Name</label>
+          <input type="text" id="fullname" class="form-control" placeholder="Enter your full name" required />
+        </div>
+
+        <div class="mb-3">
+          <label for="email" class="form-label">Email Address</label>
+          <input type="email" id="email" class="form-control" placeholder="Enter your email" required />
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" id="password" class="form-control" placeholder="Enter a strong password" required />
+        </div>
+
+        <div class="mb-3">
+          <label for="role" class="form-label">Select Role</label>
+          <select class="form-select" id="role" required>
+            <option selected disabled value="">Choose role</option>
+            <option value="admin">Admin</option>
+            <option value="pharmacist">Pharmacist</option>
+            <option value="customer">Customer</option>
+          </select>
+        </div>
+
+        <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-primary">Register</button>
+        </div>
+
+        <p class="text-center mt-3">
+          Already have an account? <a href="login.html" class="register-link">Login</a>
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>&copy; 2025 MediLink | All Rights Reserved</p>
+    <p>Contact us: <a href="mailto:support@medilink.com">support@medilink.com</a></p>
+  </footer>
+
+  <script>
+    document.getElementById('register-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const fullname = document.getElementById('fullname').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const role = document.getElementById('role').value;
+
+      fetch('/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ fullname, email, password, role })
+      })
+      .then(response => response.text()) 
+      .then(data => {
+        console.log(data); 
+        alert(data);
+        // Optionally, redirect the user to login page after successful registration
+        window.location.href = 'login.html';
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Registration failed. Please try again.');
+      });
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

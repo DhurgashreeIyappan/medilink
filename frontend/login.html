@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login - MediLink</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="styles.css" rel="stylesheet" />
+  <style>
+    .card {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 20px;
+      padding: 30px;
+      width: 100%;
+      height: 500px;
+      max-width: 600px;
+      color: #004d73;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#">MediLink</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Home</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="login-container">
+    <div class="card mx-auto mt-5">
+      <h3 class="text-center mb-4">Login to MediLink</h3>
+      <form id="login-form">
+        <div class="mb-3">
+          <label for="email" class="form-label">Email address</label>
+          <input type="email" id="email" class="form-control" placeholder="Enter your email" required />
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" id="password" class="form-control" placeholder="Enter your password" required />
+        </div>
+
+        <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-primary">Login</button>
+        </div>
+
+        <p class="text-center mt-3">
+          Don’t have an account? <a href="register.html" class="register-link">Register</a>
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <footer class="footer mt-5 text-center">
+    <p>&copy; 2025 MediLink | All Rights Reserved</p>
+    <p>Contact us: <a href="mailto:support@medilink.com">support@medilink.com</a></p>
+  </footer>
+
+  <script>
+    document.getElementById('login-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      fetch('/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // ✅ Store JWT token in localStorage
+            localStorage.setItem('token', data.token);
+
+            // ✅ Redirect to user-specific dashboard
+            window.location.href = data.redirectUrl;
+          } else {
+            alert('Login failed: ' + data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred during login. Please try again.');
+        });
+    });
+
+    function parseJwt(token) {
+      try {
+        return JSON.parse(atob(token.split('.')[1]));
+      } catch (e) {
+        return null;
+      }
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

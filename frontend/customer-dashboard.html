@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Customer Dashboard - MediLink</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    #cart-section {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar navbar-dark bg-info">
+    <div class="container">
+      <a class="navbar-brand" href="#">MediLink</a>
+      <a class="btn btn-light" href="login.html" onclick="logout()" >Logout</a>
+    </div>
+  </nav>
+
+  <div class="container mt-5">
+    <h2 class="text-info">Welcome, Valued Customer</h2>
+    <p class="lead">Browse tablets and add them to your cart.</p>
+
+    <div class="row" id="products">
+  <!-- Tablet 1 -->
+  <div class="col-md-4 mb-4">
+    <div class="card shadow text-center">
+      <div class="card-body">
+        <h5 class="card-title">Paracetamol</h5>
+        <p class="card-text">500mg - Pain reliever and fever reducer</p>
+        <button class="btn btn-info" onclick="addToCart('Paracetamol')">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tablet 2 -->
+  <div class="col-md-4 mb-4">
+    <div class="card shadow text-center">
+      <div class="card-body">
+        <h5 class="card-title">Amoxicillin</h5>
+        <p class="card-text">250mg - Antibiotic for infections</p>
+        <button class="btn btn-info" onclick="addToCart('Amoxicillin')">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tablet 3 -->
+  <div class="col-md-4 mb-4">
+    <div class="card shadow text-center">
+      <div class="card-body">
+        <h5 class="card-title">Cetirizine</h5>
+        <p class="card-text">10mg - Allergy relief</p>
+        <button class="btn btn-info" onclick="addToCart('Cetirizine')">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tablet 4 -->
+  <div class="col-md-4 mb-4">
+    <div class="card shadow text-center">
+      <div class="card-body">
+        <h5 class="card-title">Ibuprofen</h5>
+        <p class="card-text">400mg - Anti-inflammatory and pain relief</p>
+        <button class="btn btn-info" onclick="addToCart('Ibuprofen')">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tablet 5 -->
+  <div class="col-md-4 mb-4">
+    <div class="card shadow text-center">
+      <div class="card-body">
+        <h5 class="card-title">Azithromycin</h5>
+        <p class="card-text">500mg - Treats bacterial infections</p>
+        <button class="btn btn-info" onclick="addToCart('Azithromycin')">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tablet 6 -->
+  <div class="col-md-4 mb-4">
+    <div class="card shadow text-center">
+      <div class="card-body">
+        <h5 class="card-title">Pantoprazole</h5>
+        <p class="card-text">40mg - Reduces stomach acid</p>
+        <button class="btn btn-info" onclick="addToCart('Pantoprazole')">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- Cart Section -->
+    <div id="cart-section" class="mt-5">
+      <h4 class="text-success">Your Cart</h4>
+      <ul id="cart-list" class="list-group mb-3"></ul>
+      <button class="btn btn-success" onclick="placeOrder()">Place Order</button>
+    </div>
+
+  </div>
+  <!-- Orders Section -->
+<div id="orders-section" class="mt-5"></div>
+
+
+  <script>
+  const cart = [];
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert("You are not logged in. Redirecting to login page.");
+    window.location.href = "login.html";
+  }
+
+  function addToCart(item) {
+    cart.push(item);
+    updateCart();
+  }
+
+  function updateCart() {
+    const cartSection = document.getElementById('cart-section');
+    const cartList = document.getElementById('cart-list');
+
+    cartList.innerHTML = '';
+    cart.forEach((item, index) => {
+      const listItem = document.createElement('li');
+      listItem.className = 'list-group-item';
+      listItem.textContent = `${index + 1}. ${item}`;
+      cartList.appendChild(listItem);
+    });
+
+    cartSection.style.display = 'block';
+  }
+
+  function parseJwt(token) {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          })
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      console.error("Invalid token", e);
+      return null;
+    }
+  }
+
+  function placeOrder() {
+  if (cart.length === 0) {
+    alert("Your cart is empty.");
+  } else {
+    // Example: Get the logged-in user's ID from sessionStorage, localStorage, or a global variable
+    const decoded = parseJwt(token);
+    const user_id = decoded?.user_id;
+
+    if (!user_id) {
+      alert("User not logged in.");
+      return;
+    }
+
+    if (!user_id) {
+      alert("User not logged in.");
+      return;
+    }
+
+    // Prepare the order data
+    const orderData = {
+      user_id: user_id,  // Send the logged-in user's ID
+      medicine: cart.join(', '),  // Assuming cart contains medicine names
+      quantity: cart.length      // Assuming 1 quantity per item for simplicity
+    };
+
+    // Send the order to the backend
+    fetch('/place-order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token 
+      },
+      body: JSON.stringify(orderData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('Order placed successfully');
+        cart.length = 0;  // Reset cart
+        updateCart();
+        document.getElementById('cart-section').style.display = 'none';
+      } else {
+        alert('Error placing order');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error placing order');
+    });
+  }
+}
+
+window.onload = function() {
+  fetchOrders();  // Fetch previous orders on page load
+};
+
+  // Show previous orders
+  function fetchOrders() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert("You are not logged in. Redirecting to login page.");
+    window.location.href = "login.html";
+    return;
+  }
+
+  fetch('/customer-orders', {
+    method: 'GET',
+    headers: {
+      'Authorization': token  // ✅ Send JWT in Authorization header
+    }
+  })
+  .then(res => {
+    if (!res.ok) {
+      throw new Error("Failed to fetch orders");
+    }
+    return res.json();
+  })
+  .then(data => {
+    const ordersSection = document.getElementById('orders-section');
+    ordersSection.innerHTML = '<h4 class="text-primary">Your Previous Orders</h4>';
+
+    if (data.success && data.orders.length > 0) {
+      data.orders.forEach(order => {
+        const orderDiv = document.createElement('div');
+        orderDiv.className = 'card mb-2 p-2 shadow-sm';
+        orderDiv.innerHTML = `
+          <strong>Medicine:</strong> ${order.medicine}<br>
+          <strong>Status:</strong> ${order.status}<br>
+          <small><strong>Date:</strong> ${new Date(order.order_date).toLocaleString()}</small>
+        `;
+        ordersSection.appendChild(orderDiv);
+      });
+    } else {
+      ordersSection.innerHTML += '<p>No orders yet.</p>';
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert("Failed to load orders. Please try again.");
+  });
+}
+
+
+  function logout() {
+  localStorage.removeItem('token');
+  window.location.href = "login.html";
+  }
+
+  // Auto load orders on page load
+  window.onload = fetchOrders;
+</script>
+
+
+</body>
+</html>
